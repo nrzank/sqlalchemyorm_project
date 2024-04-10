@@ -26,6 +26,7 @@ class Teacher(Base):
     updated_at = Column(DateTime,
                         server_default=func.timezone('UTC', func.now()),
                         onupdate=func.timezone('UTC', func.now()))
+    lessons = relationship("Lesson", back_populates="teacher")
 
     lesson = relationship('Lesson',
                           uselist=False,
@@ -82,6 +83,8 @@ class Lesson(Base):
     lesson_id = Column(Integer, primary_key=True)
     subject = Column(String, nullable=False)
     date = Column(DateTime, nullable=False)
+    teacher_id = Column(Integer, ForeignKey('teachers.teacher_id'))
+    teacher = relationship("Teacher", back_populates="lessons")
     created_at = Column(DateTime,
                         server_default=func.timezone('UTC', func.now()))
     updated_at = Column(DateTime,

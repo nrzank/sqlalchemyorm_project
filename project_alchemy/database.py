@@ -10,8 +10,7 @@ load()
 LOGIN = os.getenv('LOGIN')
 
 engine = create_engine(
-    LOGIN,
-    echo=True
+    LOGIN
 )
 
 Session = sessionmaker(bind=engine)
