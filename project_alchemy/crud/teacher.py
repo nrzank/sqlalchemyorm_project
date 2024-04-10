@@ -1,5 +1,5 @@
 from project_alchemy.database import Session
-from project_alchemy.models import Teacher, Lesson, TeacherLessons
+from project_alchemy.models import Teacher, Lesson
 
 
 def create_teacher(
@@ -21,7 +21,9 @@ def create_teacher(
         password=password
     )
 
+    new_lesson = Lesson(teacher=new_teacher)
     session.add(new_teacher)
+    session.add(new_lesson)
     session.commit()
     return new_teacher
 
@@ -38,7 +40,7 @@ def get_teacher_by_id(session: Session,
     if teacher is None:
         return None
 
-    lessons = session.query(Lesson).join(TeacherLessons).filter_by(teacher_id=teacher_id).all()
+    lessons = session.query(Lesson).filter_by(teacher_id=teacher_id).all()
     teacher.lessons = lessons
 
     return teacher
