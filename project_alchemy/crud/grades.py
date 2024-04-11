@@ -10,14 +10,12 @@ def create_grade(
         lesson_id: str,
         grade_value: str,
         comments: str = None
-
 ):
     """
     create the grade
     :return:
     """
     new_grade = Grade(
-        session=session,
         grade_id=grade_id,
         student_id=student_id,
         lesson_id=lesson_id,

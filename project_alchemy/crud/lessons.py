@@ -1,10 +1,9 @@
 from project_alchemy.database import Session
-from project_alchemy.models import Lesson, Student, TeacherLessons
+from project_alchemy.models import Lesson, Student
 
 
 def create_lesson(
         session: Session,
-        lesson_id: int,
         subject: str,
         date
 ):
@@ -13,7 +12,6 @@ def create_lesson(
     :return: Created lesson object
     """
     new_lesson = Lesson(
-        lesson_id=lesson_id,
         subject=subject,
         date=date
     )
@@ -41,9 +39,7 @@ def get_lessons_info(session: Session):
             'students_registered': []
         }
 
-        registered_students = session.query(Student) \
-            .join(TeacherLessons) \
-            .filter(TeacherLessons.lesson_id == lesson.lesson_id).all()
+        registered_students = session.query(Student).filter(Lesson.lesson_id == lesson.lesson_id).all()
 
         for student in registered_students:
             lesson_dict['students_registered'].append(f"{student.name} {student.surname}")
@@ -88,3 +84,4 @@ def delete_lesson(session: Session, lesson_id: int):
     session.delete(lesson)
     session.commit()
     return True
+
