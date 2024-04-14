@@ -104,3 +104,4 @@ def get_average_grade_by_student(
         return None
 
     return average_grade
+
