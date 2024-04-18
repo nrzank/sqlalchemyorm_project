@@ -2,22 +2,10 @@ from project_alchemy.database import Session
 from project_alchemy.models import Lesson, Student
 
 
-def create_lesson(
-        session: Session,
-        subject: str,
-        date
-):
-    """
-    A method for creating a new lesson.
-    :return: Created lesson object
-    """
-    new_lesson = Lesson(
-        subject=subject,
-        date=date
-    )
+def create_lesson(session, subject, date, teacher_id):
+    new_lesson = Lesson(subject=subject, date=date, teacher_id=teacher_id)
     session.add(new_lesson)
     session.commit()
-    return new_lesson
 
 
 def get_lessons_info(session: Session):
@@ -85,3 +73,14 @@ def delete_lesson(session: Session, lesson_id: int):
     session.commit()
     return True
 
+
+def get_lessons_by_teacher(session, teacher_id):
+    """
+    Возвращает список уроков по ID учителя.
+
+    :param session: Сессия базы данных
+    :param teacher_id: ID учителя
+    :return: Список уроков
+    """
+    lessons = session.query(Lesson).filter(Lesson.teacher_id == teacher_id).all()
+    return lessons

@@ -1,31 +1,20 @@
 from sqlalchemy import func
 from project_alchemy.database import Session
-from project_alchemy.models import Grade
+from project_alchemy.models import Grade, Student, Lesson
 
 
-def create_grade(
-        session: Session,
-        grade_id: str,
-        student_id: str,
-        lesson_id: str,
-        grade_value: str,
-        comments: str = None
-):
-    """
-    create the grade
-    :return:
-    """
-    new_grade = Grade(
-        grade_id=grade_id,
-        student_id=student_id,
-        lesson_id=lesson_id,
-        grade_value=grade_value,
-        comments=comments
-    )
+def create_grade(session, student_id, lesson_id, grade_value, comments):
+    if not session.query(Student).filter_by(student_id=student_id).first():
+        print(f"Студент с student_id={student_id} не найден!")
+        return
+
+    if not session.query(Lesson).filter_by(lesson_id=lesson_id).first():
+        print(f"Урок с lesson_id={lesson_id} не найден!")
+        return
+    new_grade = Grade(student_id=student_id, lesson_id=lesson_id, grade_value=grade_value, comments=comments)
     session.add(new_grade)
     session.commit()
-
-    return new_grade
+    print("Оценка успешно создана!")
 
 
 def update_grade(
@@ -71,21 +60,24 @@ def get_grades_by_student(
     return grades
 
 
-def get_grades_by_lesson(
-        session: Session,
-        lesson_id: int
-):
+def get_grades_by_lesson(session, lesson_id, student_id=None):
     """
-    A method for getting all grades for a specific lesson.
-    :return: List of grades for the specified lesson or None if not found
+    Возвращает список оценок по ID урока.
+
+    Если указан student_id, возвращает оценки только для данного студента.
+
+    :param session: Сессия базы данных
+    :param lesson_id: ID урока
+    :param student_id: (опционально) ID студента
+    :return: Список оценок
     """
-
-    grades = session.query(Grade).filter_by(lesson_id=lesson_id).all()
-
-    if not grades:
-        return None
+    if student_id:
+        grades = session.query(Grade).filter_by(lesson_id=lesson_id, student_id=student_id).all()
+    else:
+        grades = session.query(Grade).filter_by(lesson_id=lesson_id).all()
 
     return grades
+
 
 
 def get_average_grade_by_student(
@@ -104,4 +96,6 @@ def get_average_grade_by_student(
         return None
 
     return average_grade
+
+
 
