@@ -1,109 +1,173 @@
 from project_alchemy.crud.grades import (
     get_grades_by_lesson,
-    get_average_grade_by_student,
     create_grade
 )
 from project_alchemy.crud.teacher import (
     get_teacher_by_id,
-    create_teacher
+    create_teacher,
+    get_teacher_by_credentials
 )
 from project_alchemy.crud.student import (
-    create_student
+    create_student,
+    get_student_by_credentials, get_lessons_by_student, get_grades_by_student
 )
 from project_alchemy.crud.lessons import (
-    create_lesson
+    create_lesson, get_lessons_by_teacher
 )
 from project_alchemy.database import Session
 
 
 def main_menu():
-
+    global student_id
     while True:
-        print("\n=== Main Menu ===")
-        print("1. Get teacher by ID")
-        print("2. Create teacher")
-        print("3. Create student")
-        print("4. Create lesson")
-        print("5. Create grade")
-        print("6. Get grades by lesson")
-        print("7. Get average grade by student")
-        print("0. Exit")
+        print("\n=== Главное меню ===")
+        print("1. Получить учителя по ID")
+        print("2. Создать учителя")
+        print("3. Создать студента")
+        print("4. Создать урок")
+        print("5. Выход по имени и паролю")
+        print("0. Выход")
 
-        choice = input("Enter your choice: ")
+        choice = input("Введите ваш выбор: ")
 
         if choice == "1":
-            teacher_id = int(input("Enter teacher ID: "))
+            teacher_id = int(input("Введите ID учителя: "))
             session = Session()
             result = get_teacher_by_id(session, teacher_id)
             if result:
-                print(f"Teacher Name: {result.name} {result.surname}")
-                print("Lessons:")
+                print(f"Имя учителя: {result.name} {result.surname}")
+                print("Уроки:")
                 for lesson in result.lessons:
                     print(f"- {lesson.subject}")
             else:
-                print("Teacher not found!")
+                print("Учитель не найден!")
 
         elif choice == "2":
-            name = input("Enter teacher name: ")
-            surname = input("Enter teacher surname: ")
-            email = input("Enter teacher email: ")
-            password = input("Enter teacher password: ")
+            name = input("Введите имя учителя: ")
+            surname = input("Введите фамилию учителя: ")
+            email = input("Введите email учителя: ")
+            password = input("Введите пароль учителя: ")
             session = Session()
             create_teacher(session, name, surname, email, password)
-            print("Teacher created successfully!")
+            print("Учитель успешно создан!")
 
         elif choice == "3":
-            name = input("Enter student name: ")
-            surname = input("Enter student surname: ")
-            group = input("Enter student group: ")
-            email = input("Enter student email: ")
-            password = input("Enter student password: ")
+            name = input("Введите имя студента: ")
+            surname = input("Введите фамилию студента: ")
+            group = input("Введите группу студента: ")
+            email = input("Введите email студента: ")
+            password = input("Введите пароль студента: ")
             session = Session()
             create_student(session, name, surname, group, email, password)
-            print("Student created successfully!")
+            print("Студент успешно создан!")
 
         elif choice == "4":
-            subject = input("Enter lesson subject: ")
-            date = input("Enter lesson date (YYYY-MM-DD): ")
-            teacher_id = int(input("Enter teacher ID for the lesson: "))
+            subject = input("Введите предмет урока: ")
+            date = input("Введите дату урока (ГГГГ-ММ-ДД): ")
+            teacher_id = int(input("Введите ID учителя для урока: "))
             session = Session()
             create_lesson(session, subject, date, teacher_id)
-            print("Lesson created successfully!")
+            print("Урок успешно создан!")
 
         elif choice == "5":
-            student_id = int(input("Enter student ID: "))
-            lesson_id = int(input("Enter lesson ID: "))
-            grade_value = int(input("Enter grade value: "))
-            comments = input("Enter comments for the grade: ")
+            role = input("Вы учитель или студент? (t/s): ")
+            name = input("Введите имя: ")
+            password = input("Введите пароль: ")
             session = Session()
-            create_grade(session, student_id, lesson_id, grade_value, comments)
-            print("Grade created successfully!")
 
-        elif choice == "6":
-            lesson_id = int(input("Enter lesson ID: "))
-            session = Session()
-            result = get_grades_by_lesson(session, lesson_id)
-            if result:
-                for grade in result:
-                    print(f"Student ID: {grade.student_id}, Grade: {grade.grade_value}")
-            else:
-                print("No grades found for this lesson!")
+            if role.lower() == "t":
+                teacher = get_teacher_by_credentials(session, name, password)
+                if teacher:
+                    while True:
+                        print("\n=== Меню учителя ===")
+                        print("1. Создать оценку")
+                        print("2. Посмотреть оценку")
+                        print("3. Расписание уроков")
+                        print("0. Вернуться в главное меню")
 
-        elif choice == "7":
-            student_id = int(input("Enter student ID: "))
-            session = Session()
-            result = get_average_grade_by_student(session, student_id)
-            if result:
-                print(f"Average grade for student {student_id}: {result}")
-            else:
-                print("No grades found for this student!")
+                        teacher_choice = input("Введите ваш выбор: ")
+
+                        if teacher_choice == "1":
+                            student_id = int(input("Введите ID студента: "))
+                            lesson_id = int(input("Введите ID урока: "))
+                            grade_value = int(input("Введите значение оценки: "))
+                            comments = input("Введите комментарии к оценке: ")
+                            create_grade(session, student_id, lesson_id, grade_value, comments)
+                            print("Оценка успешно создана!")
+
+                        elif teacher_choice == "2":
+                            student_id = int(input("Введите ID студента: "))
+                            lesson_id = int(input("Введите ID урока: "))
+                            result = get_grades_by_lesson(session, lesson_id, student_id)
+                            if result:
+                                print(f"Оценка студента {student_id} по уроку {lesson_id}: {result.grade_value}")
+                            else:
+                                print("Оценка не найдена!")
+
+                        elif teacher_choice == "3":
+                            teacher_id = teacher.teacher_id
+                            lessons = get_lessons_by_teacher(session, teacher_id)
+                            if lessons:
+                                print("Расписание уроков:")
+                                for lesson in lessons:
+                                    print(f"{lesson.date} - {lesson.subject}")
+                            else:
+                                print("У учителя пока нет уроков!")
+
+                        elif teacher_choice == "0":
+                            break
+
+                        else:
+                            print("Неверный выбор. Пожалуйста, попробуйте снова.")
+
+                else:
+                    print("Неверное имя или пароль!")
+
+            elif role.lower() == "s":
+                student = get_student_by_credentials(session, name, password)
+                if student:
+                    while True:
+                        print("\n=== Меню студента ===")
+                        print("1. Посмотреть оценки")
+                        print("2. Расписание уроков")
+                        print("0. Вернуться в главное меню")
+
+                        student_choice = input("Введите ваш выбор: ")
+
+                        if student_choice == "1":
+                            student_id = student.student_id
+                            grades = get_grades_by_student(session, student_id)
+                            if grades:
+                                print("Оценки:")
+                                for grade in grades:
+                                    print(f"Урок {grade.lesson_id}: {grade.grade_value}")
+                            else:
+                                print("У студента пока нет оценок!")
+
+                        elif student_choice == "2":
+                            lessons = get_lessons_by_student(session, student_id)
+                            if lessons:
+                                print("Расписание уроков:")
+                                for lesson in lessons:
+                                    print(f"{lesson.date} - {lesson.subject}")
+                            else:
+                                print("У студента пока нет уроков!")
+
+                        elif student_choice == "0":
+                            break
+
+                        else:
+                            print("Неверный выбор. Пожалуйста, попробуйте снова.")
+
+                else:
+                    print("Неверное имя или пароль!")
 
         elif choice == "0":
-            print("Exiting...")
+            print("Выход...")
             break
 
         else:
-            print("Invalid choice. Please try again.")
+            print("Неверный выбор. Пожалуйста, попробуйте снова.")
 
 
 if __name__ == "__main__":
