@@ -1,29 +1,23 @@
+from shlex import join
+
 from project_alchemy.database import Session
-from project_alchemy.models import Student
+from project_alchemy.models import Student, Lesson, Grade
 
 
-def create_student(
-        session: Session,
-        name: str,
-        surname: str,
-        email: str,
-        password: str
-):
-    """
-    A method for creating a new student.
-    :return: Created student object
-    """
-
-    new_student = Student(
-        name=name,
-        surname=surname,
-        email=email,
-        password=password
-    )
-
+def create_student(session,
+                   name,
+                   surname,
+                   group,
+                   email,
+                   password):
+    new_student = Student(name=name,
+                          surname=surname,
+                          group=group,
+                          email=email,
+                          password=password)
     session.add(new_student)
     session.commit()
-    return new_student
+    return create_student
 
 
 def get_student_by_id(
@@ -97,3 +91,37 @@ def get_all_student(session: Session):
     students = session.query(Student).all()
 
     return students
+
+
+def get_student_by_credentials(session, name, password):
+    return session.query(Student).filter_by(name=name, password=password).first()
+
+
+def get_lessons_by_student(session, student_id):
+    """
+    Возвращает список уроков по ID студента.
+
+    :param session: Сессия базы данных
+    :param student_id: ID студента
+    :return: Список уроков
+    """
+    lesson_grade_join = join(Lesson, Grade, Lesson.lesson_id == Grade.lesson_id)
+
+    lessons = session.query(Lesson). \
+        join(lesson_grade_join). \
+        filter(Grade.student_id == student_id). \
+        distinct(Lesson.lesson_id).all()
+
+    return lessons
+
+
+def get_grades_by_student(session, student_id):
+    """
+    Возвращает список оценок по ID студента.
+
+    :param session: Сессия базы данных
+    :param student_id: ID студента
+    :return: Список оценок
+    """
+    grades = session.query(Grade).filter_by(student_id=student_id).all()
+    return grades

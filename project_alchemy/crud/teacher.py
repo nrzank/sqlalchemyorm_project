@@ -1,31 +1,22 @@
+from project_alchemy.crud.lessons import create_lesson
 from project_alchemy.database import Session
 from project_alchemy.models import Teacher, Lesson
 
 
-def create_teacher(
-        session: Session,
-        name: str,
-        surname: str,
-        email: str,
-        password: str,
-):
-    """
-    A method for creating a new teacher.
-    :return: Created teacher object
-    """
-
-    new_teacher = Teacher(
-        name=name,
-        surname=surname,
-        email=email,
-        password=password
-    )
-
-    new_lesson = Lesson(teacher=new_teacher)
+def create_teacher(session, name, surname, email, password):
+    new_teacher = Teacher(name=name, surname=surname, email=email, password=password)
     session.add(new_teacher)
-    session.add(new_lesson)
     session.commit()
-    return new_teacher
+    print("Учитель успешно создан!")
+
+    create_lesson_option = input("Хотите создать урок для этого учителя? (y/n): ")
+    if create_lesson_option.lower() == 'y':
+        subject = input("Введите предмет урока: ")
+        date = input("Введите дату урока (ГГГГ-ММ-ДД): ")
+        create_lesson(session, subject, date, new_teacher.teacher_id)
+        print("Урок успешно создан!")
+    else:
+        print("Урок не создан.")
 
 
 def get_teacher_by_id(session: Session,
@@ -98,3 +89,7 @@ def get_all_teachers(session: Session):
     teachers = session.query(Teacher).all()
 
     return teachers
+
+
+def get_teacher_by_credentials(session, name, password):
+    return session.query(Teacher).filter_by(name=name, password=password).first()
