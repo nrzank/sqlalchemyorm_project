@@ -18,7 +18,6 @@ from project_alchemy.database import Session
 
 
 def main_menu():
-    global student_id
     while True:
         print("\n=== Главное меню ===")
         print("1. Получить учителя по ID")
