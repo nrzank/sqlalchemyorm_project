@@ -9,7 +9,7 @@ from project_alchemy.crud.teacher import (
 )
 from project_alchemy.crud.student import (
     create_student,
-    get_student_by_credentials, get_lessons_by_student, get_grades_by_student
+    get_student_by_credentials, get_lessons_by_student, get_grades_by_student, get_grades_all
 )
 from project_alchemy.crud.lessons import (
     create_lesson, get_lessons_by_teacher
@@ -82,6 +82,7 @@ def main_menu():
                         print("1. Создать оценку")
                         print("2. Посмотреть оценку")
                         print("3. Расписание уроков")
+                        print('4. Посмотреть оценки всех студентов')
                         print("0. Вернуться в главное меню")
 
                         teacher_choice = input("Введите ваш выбор: ")
@@ -113,6 +114,17 @@ def main_menu():
                             else:
                                 print("У учителя пока нет уроков!")
 
+                        elif choice == "3":
+                            session = Session()
+                            all_grades = get_grades_all(session)
+                            if all_grades:
+                                print("Оценки всех студентов:")
+                                for grade in all_grades:
+                                    print(
+                                        f"Студент ID: {grade.student_id}, "
+                                        f"Урок ID: {grade.lesson_id}, "
+                                        f"Оценка: {grade.grade_value}")
+
                         elif teacher_choice == "0":
                             break
 
@@ -129,6 +141,7 @@ def main_menu():
                         print("\n=== Меню студента ===")
                         print("1. Посмотреть оценки")
                         print("2. Расписание уроков")
+                        print('3. Посмотреть оценки всех студентов')
                         print("0. Вернуться в главное меню")
 
                         student_choice = input("Введите ваш выбор: ")
@@ -151,6 +164,21 @@ def main_menu():
                                     print(f"{lesson.date} - {lesson.subject}")
                             else:
                                 print("У студента пока нет уроков!")
+
+                        elif choice == "3":
+                            session = Session()
+                            all_grades = get_grades_all(session)
+                            if all_grades:
+                                print("Оценки всех студентов:")
+                                for grade in all_grades:
+                                    print(
+                                        f"Студент ID: {grade.student_id}, "
+                                        f"Урок ID: {grade.lesson_id}, "
+                                        f"Оценка: {grade.grade_value}")
+
+
+                            else:
+                                print("Оценки студентов не найдены!")
 
                         elif student_choice == "0":
                             break
