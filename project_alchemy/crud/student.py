@@ -34,53 +34,63 @@ def get_student_by_id(
     return get_student
 
 
-def update_student(
-        session: Session,
-        student_id: int,
-        name: str = None,
-        surname: str = None,
-        email: str = None,
-        password: str = None
-):
+#
+# def update_student(
+#         session: Session,
+#         student_id: int,
+#         name: str = None,
+#         surname: str = None,
+#         email: str = None,
+#         password: str = None
+# ):
+#     """
+#     A method for updating information about a specific student.
+#     :return: Updated student object or None if not found
+#     """
+#     student = get_student_by_id(session, student_id)
+#     if not student:
+#         return None
+#
+#     if name:
+#         student.name = name
+#     if surname:
+#         student.surname = surname
+#     if email:
+#         student.email = email
+#     if password:
+#         student.password = password
+#
+#     session.commit()
+#     return student
+#
+
+def get_grades_all(session):
     """
-    A method for updating information about a specific student.
-    :return: Updated student object or None if not found
-    """
-    student = get_student_by_id(session, student_id)
-    if not student:
-        return None
+       Получить оценки всех студентов из базы данных.
+       :return: Список объектов оценок всех студентов.
+       """
 
-    if name:
-        student.name = name
-    if surname:
-        student.surname = surname
-    if email:
-        student.email = email
-    if password:
-        student.password = password
-
-    session.commit()
-    return student
+    return session.query(Grade).all()
 
 
-def delete_student(session: Session, student_id: int):
-    """
-    A method for deleting a student from the database.
-    :return: True if deleted successfully, False otherwise
-    """
-    student = (
-        session
-        .query(Student)
-        .filter(Student.student_id == student_id)
-        .one_or_none()
-    )
-
-    if student:
-        session.delete(student)
-        session.commit()
-        return True
-    else:
-        return False
+# def delete_student(session: Session, student_id: int):
+#     """
+#     A method for deleting a student from the database.
+#     :return: True if deleted successfully, False otherwise
+#     """
+#     student = (
+#         session
+#         .query(Student)
+#         .filter(Student.student_id == student_id)
+#         .one_or_none()
+#     )
+#
+#     if student:
+#         session.delete(student)
+#         session.commit()
+#         return True
+#     else:
+#         return False
 
 
 def get_all_student(session: Session):
